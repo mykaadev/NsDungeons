@@ -52,6 +52,18 @@ bool FNsDungeonGenerator::TryGenerate(const FNsDungeonSettings& Settings, FRando
     Graph.MajorCycle = PickCycleType(Settings, Random);
     ApplyCycleType(Settings, Graph.MajorCycle, Arc0, Arc1, Graph);
     KeepStep(Result, bKeepSteps, TEXT("CycleType"), FString::Printf(TEXT("Cycle type %s"), *UEnum::GetValueAsString(Graph.MajorCycle)), Graph);
+
+    AddMinorCycles(Settings, Random, Graph);
+    KeepStep(Result, bKeepSteps, TEXT("MinorCycles"), FString::Printf(TEXT("Side loops, %d locks in all"), Graph.Locks.Num()), Graph);
+
+    AddHiddenShortcut(Settings, Random, Graph);
+    KeepStep(Result, bKeepSteps, TEXT("HiddenShortcut"), TEXT("A hidden door, by chance"), Graph);
+
+    AddDeadEnds(Settings, Random, Graph);
+    KeepStep(Result, bKeepSteps, TEXT("DeadEnds"), FString::Printf(TEXT("%d rooms"), Graph.CountUsedNodes()), Graph);
+
+    Resolve(Settings, Random, Graph);
+    KeepStep(Result, bKeepSteps, TEXT("Resolve"), TEXT("Distances, dead ends, and room tags"), Graph);
     return true;
 }
 

@@ -7,11 +7,13 @@
 
 namespace NsDungeonTests
 {
-    /** Settings that pick only one major cycle type */
+    /** Settings that pick only one major cycle type, with no side loop and no shortcut, so the major cycle shows alone */
     FNsDungeonSettings MakeSettings(const ENsDungeonCycleType Type)
     {
         FNsDungeonSettings Settings;
         Settings.MajorCycles = { { Type, 1 } };
+        Settings.MinorCycles = 0;
+        Settings.HiddenShortcutChance = 0.0f;
         return Settings;
     }
 }
@@ -109,6 +111,46 @@ bool FNsDungeonValidateTest::RunTest(const FString& Parameters)
     Graph.Edges[Graph.FindEdge(1, 2)].Kind = ENsDungeonEdgeKind::OneWay;
     Graph.Edges[Graph.FindEdge(1, 2)].OneWayFrom = 2;
     TestFalse(TEXT("A one-way door from the goal side blocks the way in"), FNsDungeonGenerator::Validate(Graph, Message));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNsDungeonFullFloorTest, "NsDungeons.Generator.FullFloor", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FNsDungeonFullFloorTest::RunTest(const FString& Parameters)
+{
+    // With every step on: the floor reaches its size, the side loops add loops, the tags land, and every seed stays valid
+    FNsDungeonSettings Settings;
+    Settings.TargetRooms = 14;
+    Settings.MinorCycles = 2;
+    Settings.MinorLockChance = 1.0f;
+    Settings.HiddenShortcutChance = 1.0f;
+    Settings.RoomTags = { { TEXT("Camp"), 1, ENsDungeonTagPlace::MajorCycle }, { TEXT("Cache"), 2, ENsDungeonTagPlace::DeadEnd }, { TEXT("Winch"), 1, ENsDungeonTagPlace::NearGoal } };
+    int32 Invalid = 0;
+    int32 Small = 0;
+    int32 NoLoops = 0;
+    int32 MissingTags = 0;
+    int32 SideLocks = 0;
+    for (int32 Seed = 0; Seed < 200; ++Seed)
+    {
+        const FNsDungeonResult Result = FNsDungeonGenerator::Generate(Settings, Seed * 104729);
+        const FNsDungeonGraph& Graph = Result.Graph;
+        Invalid += Result.bValid ? 0 : 1;
+        Small += Graph.CountUsedNodes() >= Settings.TargetRooms ? 0 : 1;
+        // Independent loops = edges - rooms + 1. The major cycle gives one, each side loop one more
+        NoLoops += Graph.Edges.Num() - Graph.CountUsedNodes() + 1 >= 2 ? 0 : 1;
+        int32 Tagged = 0;
+        for (const FNsDungeonNode& Node : Graph.Nodes)
+        {
+            Tagged += Node.Tags.Num();
+        }
+        MissingTags += Tagged == 4 ? 0 : 1;
+        SideLocks += Graph.Locks.Num() > (Graph.MajorCycle == ENsDungeonCycleType::LockAndKey || Graph.MajorCycle == ENsDungeonCycleType::TwoKeys ? 1 : 0) ? 1 : 0;
+    }
+    TestEqual(TEXT("Every seed is valid"), Invalid, 0);
+    TestEqual(TEXT("Every floor reaches its size"), Small, 0);
+    TestEqual(TEXT("Every floor has a side loop"), NoLoops, 0);
+    TestEqual(TEXT("Every tag lands on a room"), MissingTags, 0);
+    TestTrue(TEXT("Most floors keep a locked side loop"), SideLocks > 100);
     return true;
 }
 

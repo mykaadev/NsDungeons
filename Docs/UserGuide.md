@@ -40,6 +40,8 @@ Blueprint: a Blueprint library follows in step D3.
 | Check a hand-made graph | `FNsDungeonGenerator::Validate(Graph, Message)` |
 | Find the door between two rooms | `Graph.FindEdge(NodeA, NodeB)`, then `Graph.Edges[Edge].Kind` |
 | Find what a key opens | `Graph.Keys[Key].LockId`, then `Graph.Locks[LockId].Edge` |
+| Find the camp room | Put a `RoomTags` entry `Camp` in the rule set, then look for the tag in `Node.Tags` |
+| Know how deep a room is | `Node.Distance`: the doors from the start. `Node.bDeadEnd`, `Node.bMinorCycle` |
 
 ## Rules
 
@@ -55,6 +57,11 @@ Blueprint: a Blueprint library follows in step D3.
 | `GridSize` | 5 by 5 | The node grid. Each used node is a room |
 | `MinStartGoalDistance` | 3 | The smallest grid distance from the start to the goal |
 | `MajorCycles` | LockAndKey 2, TwoKeys 1, OneWayValve 1, Simple 1 | The major cycle types and their weights |
+| `MinorCycles` | 1 | Side loops after the major cycle |
+| `MinorLockChance` | 0.5 | The chance of a locked side loop: a lock at its entry, a one-way door out, and the key in a room that the party reaches first |
+| `HiddenShortcutChance` | 0.5 | The chance of a hidden door between two rooms side by side that are far apart on the way |
+| `TargetRooms` | 12 | Dead ends grow the floor to this many rooms, as far as the grid allows |
+| `RoomTags` | none | Tags for the game to put on rooms, each with a count and a place: `Any`, `DeadEnd`, `MajorCycle`, `NearGoal`, `Far` |
 | `LockKind`, `KeyKind` | `Door`, `Key` | The names on new locks and keys |
 | `MaxSeedTries` | 20 | The tries with the next seeds before a failure |
 
@@ -75,5 +82,6 @@ Blueprint: a Blueprint library follows in step D3.
 
 ## Limits
 
-- Version 0.1: one major cycle, no minor cycles, no dead ends, no cell layout yet (steps D2 and D3).
+- Version 0.2: no cell layout yet (step D3).
+- One tag for each room. A tag with no free room of its place goes on any free room.
 - Only grid neighbors connect. A room has at most 4 doors.

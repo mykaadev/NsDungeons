@@ -79,6 +79,18 @@ private:
     /** Puts the locks, the keys, and the one-way doors of a cycle type on the two arcs */
     static void ApplyCycleType(const FNsDungeonSettings& Settings, ENsDungeonCycleType Type, const TArray<int32>& Arc0, const TArray<int32>& Arc1, FNsDungeonGraph& Graph);
 
+    /** Adds side loops through unused nodes, some with a lock whose key lies nearer to the start */
+    static void AddMinorCycles(const FNsDungeonSettings& Settings, FRandomStream& Random, FNsDungeonGraph& Graph);
+
+    /** Adds a hidden door between two rooms that are next to each other on the grid but far apart on the way: a shortcut from the goal side */
+    static void AddHiddenShortcut(const FNsDungeonSettings& Settings, FRandomStream& Random, FNsDungeonGraph& Graph);
+
+    /** Grows dead ends from the rooms until the floor has the target number of rooms */
+    static void AddDeadEnds(const FNsDungeonSettings& Settings, FRandomStream& Random, FNsDungeonGraph& Graph);
+
+    /** Fills the distances and the dead ends, and puts the room tags of the rule set on rooms */
+    static void Resolve(const FNsDungeonSettings& Settings, FRandomStream& Random, FNsDungeonGraph& Graph);
+
     /** Picks a major cycle type by weight */
     static ENsDungeonCycleType PickCycleType(const FNsDungeonSettings& Settings, FRandomStream& Random);
 

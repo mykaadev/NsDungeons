@@ -22,6 +22,41 @@ struct NSDUNGEONS_API FNsDungeonCycleWeight
     int32 Weight = 1;
 };
 
+/** Where the resolve step may put a room tag */
+UENUM(BlueprintType)
+enum class ENsDungeonTagPlace : uint8
+{
+    /** Any room but the start and the goal */
+    Any,
+    /** A room with one door */
+    DeadEnd,
+    /** A room on the major cycle */
+    MajorCycle,
+    /** The room nearest to the goal, then the next ones */
+    NearGoal,
+    /** The room farthest from the start, then the next ones */
+    Far
+};
+
+/** A room tag that the resolve step puts on rooms: the game decides what it means, such as a camp or a cache */
+USTRUCT(BlueprintType)
+struct NSDUNGEONS_API FNsDungeonRoomTag
+{
+    GENERATED_BODY()
+
+    /** The tag */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NsDungeons")
+    FName Tag;
+
+    /** How many rooms get it */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NsDungeons", meta = (ClampMin = "0"))
+    int32 Count = 1;
+
+    /** Where it goes. With no room of that place left, it goes on any free room */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NsDungeons")
+    ENsDungeonTagPlace Place = ENsDungeonTagPlace::Any;
+};
+
 /** The values of one generation. A rule set asset holds them, and code can make them too */
 USTRUCT(BlueprintType)
 struct NSDUNGEONS_API FNsDungeonSettings
@@ -43,6 +78,26 @@ struct NSDUNGEONS_API FNsDungeonSettings
         { ENsDungeonCycleType::TwoKeys, 1 },
         { ENsDungeonCycleType::OneWayValve, 1 },
         { ENsDungeonCycleType::Simple, 1 } };
+
+    /** The side loops after the major cycle. Each one adds a short way between two rooms through new rooms */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Cycles", meta = (ClampMin = "0"))
+    int32 MinorCycles = 1;
+
+    /** The chance that a minor cycle gets a lock on its way, with the key in a room that the party reaches first */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Cycles", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float MinorLockChance = 0.5f;
+
+    /** The chance of a hidden door that makes a short way from the goal side back to the start side */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Cycles", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float HiddenShortcutChance = 0.5f;
+
+    /** The rooms of a floor. Dead ends grow the floor to this size, as far as the grid allows */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Size", meta = (ClampMin = "2"))
+    int32 TargetRooms = 12;
+
+    /** The room tags that the resolve step puts on rooms */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rooms")
+    TArray<FNsDungeonRoomTag> RoomTags;
 
     /** The kind name of a lock and of a key, for the game to show */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Locks")

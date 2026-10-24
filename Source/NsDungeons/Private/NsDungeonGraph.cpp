@@ -151,3 +151,29 @@ int32 FNsDungeonGraph::CountUsedNodes() const
 {
     return Nodes.FilterByPredicate([](const FNsDungeonNode& Node) { return Node.Role != ENsDungeonNodeRole::Unused; }).Num();
 }
+
+TArray<int32> FNsDungeonGraph::GetDistances(const int32 From) const
+{
+    TArray<int32> Distances;
+    Distances.Init(INDEX_NONE, Nodes.Num());
+    if (!Nodes.IsValidIndex(From))
+    {
+        return Distances;
+    }
+    TArray<int32> Queue = { From };
+    Distances[From] = 0;
+    for (int32 Head = 0; Head < Queue.Num(); ++Head)
+    {
+        const int32 Node = Queue[Head];
+        for (const int32 Edge : GetEdgesOf(Node))
+        {
+            const int32 Next = Edges[Edge].GetOther(Node);
+            if (Distances[Next] == INDEX_NONE)
+            {
+                Distances[Next] = Distances[Node] + 1;
+                Queue.Add(Next);
+            }
+        }
+    }
+    return Distances;
+}

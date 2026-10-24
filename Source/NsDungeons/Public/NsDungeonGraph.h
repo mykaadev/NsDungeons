@@ -70,6 +70,18 @@ struct NSDUNGEONS_API FNsDungeonNode
     /** Names that the game gives the node, such as a room type */
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     TArray<FName> Tags;
+
+    /** The number of doors from the start, through every door, locked or not. The resolve step fills it */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    int32 Distance = INDEX_NONE;
+
+    /** True for a room with one door that is not the start or the goal. The resolve step fills it */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    bool bDeadEnd = false;
+
+    /** True for a room on a minor cycle */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    bool bMinorCycle = false;
 };
 
 /** A connection between two neighbor nodes */
@@ -219,4 +231,10 @@ struct NSDUNGEONS_API FNsDungeonGraph
 
     /** Returns the number of nodes that are part of the dungeon */
     int32 CountUsedNodes() const;
+
+    /** Returns true when a node is part of the dungeon */
+    bool IsUsed(int32 Node) const { return Nodes.IsValidIndex(Node) && Nodes[Node].Role != ENsDungeonNodeRole::Unused; }
+
+    /** Returns the number of doors from one node to every other node, through every edge. INDEX_NONE for a node out of reach */
+    TArray<int32> GetDistances(int32 From) const;
 };
