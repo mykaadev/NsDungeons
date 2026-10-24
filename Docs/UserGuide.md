@@ -84,10 +84,10 @@ Blueprint: `Generate Dungeon` (rule set, seed) returns the result with its graph
 - Tests: `Automation RunTests NsDungeons`.
 - **NsDungeons Preview**: Tools, NsDungeons Preview. Pick a rule set (none uses the default settings) and a seed, then Generate, Next seed, or Random seed. The Step slider steps through the generation. The graph of the step shows on the left, and the cell layout on the right. The text gives the step, the validation result, and the seed that worked. The legend under the views gives the colors.
 - `NsDungeons.SavePreview <Seed> <File.png>` (editor console): saves a picture of the preview for a seed, with the default settings.
-- The play overlay comes in step D5.
+- **Play overlay**: add a `NsDungeonDebugComponent` to the floor actor and call `SetDungeon(Result, CellSize)`. The console variable `NsDungeons.ShowDebug 1` then draws the rooms, the doors in their kind colors, and labels for the start, the goal, the tags, the keys, and the locks. Cell (0, 0) starts at the actor origin. Non-shipping builds only.
 
 ## Limits
 
-- Version 0.3: corridors are straight, and rooms sit in the middle of their block. The walk grid, the doors that open, and the paths are game code.
+- Version 0.5: corridors are straight, and rooms sit in the middle of their block. The walk grid, the doors that open, and the paths are game code.
 - One tag for each room. A tag with no free room of its place goes on any free room.
 - Only grid neighbors connect. A room has at most 4 doors.

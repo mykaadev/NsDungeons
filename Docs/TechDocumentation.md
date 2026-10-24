@@ -44,6 +44,8 @@ With `bKeepSteps`, each step stores a copy of the graph in `Result.Steps` for th
 
 `UNsDungeonLibrary` gives the Blueprint calls: generate, read a cell, cell to local, local to cell.
 
+`UNsDungeonDebugComponent` draws the layout with debug lines and strings each frame, in the space of its owner, while the console variable `NsDungeons.ShowDebug` is not 0. It keeps a copy of the result.
+
 ## Extension points
 
 - A new major cycle type: add it to `ENsDungeonCycleType` and a case in `ApplyCycleType`. The validation checks it with no other change.
