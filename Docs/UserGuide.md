@@ -6,6 +6,8 @@ NsDungeons makes dungeon floors with a lock-and-key structure, after the method 
 
 NsDungeons does not build game floors, move characters, or find paths. The game builds its floor from the layout and owns its walk grid and its movement. The demo actor builds a plain greybox floor only to show the plugin.
 
+[![The graph of seed 7 after the last step of a generation](Showcase/img/step8.jpg)](Showcase/GenerationSteps.html)
+
 ## Setup
 
 1. Add `NsDungeons` to the `Plugins` list of the `.uproject` file, with `"Enabled": true`.

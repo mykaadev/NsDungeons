@@ -34,6 +34,8 @@ The runtime module depends on Core, CoreUObject, and Engine only.
 8. **Resolve.** `Distance` from the start, `bDeadEnd`, and the room tags by place.
 9. **Validation.** A walk from the start over the edges that `CanPass` allows. Each reached key goes into the held set, and the walk runs again until nothing changes. Valid when the goal and every key are reached, and each lock matters: with its keys held back, some room is out of reach. A lock that a second way goes around fails the seed.
 
+[![The graph of seed 7 after the last step of a generation](Showcase/img/step8.jpg)](Showcase/GenerationSteps.html)
+
 A lock marks the rooms behind it with `LockedArea` (the goal for a major lock, the side loop for a minor lock). The later steps never start a side loop or a hidden door from such a room, so they cannot make a way around the lock.
 
 With `bKeepSteps`, each step stores a copy of the graph in `Result.Steps` for the editor preview.
