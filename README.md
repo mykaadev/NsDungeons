@@ -23,6 +23,7 @@
   <a href="#-api">🔧 API</a> •
   <a href="#-limits">🚧 Limits</a> •
   <a href="#-acknowledgement">🧾 Acknowledgement</a> •
+  <a href="#-documentation">📚 Documentation</a> •
   <a href="#-credits">❤️ Credits</a> •
   <a href="#-support">📞 Support</a> •
   <a href="#-license">📃 License</a>
@@ -116,11 +117,11 @@ To see the plugin work, open the map `/NsDungeons/Demo/L_NsDungeonsDemo` and pre
 ## 🧾 Acknowledgement
 The generation follows the cyclic dungeon method of **Unexplored**, as Boris the Brave describes it (2021).
 
-<!-- GH_ONLY_START -->
 ## 📚 Documentation
-- [User Guide](Docs/UserGuide.md) – Setup, common tasks, settings, and debug tools.
-- [Technical Documentation](Docs/TechDocumentation.md) – Architecture, lifetime, extension points, and tests.
+- [User Guide](https://github.com/mykaadev/NsDungeons/blob/main/Docs/UserGuide.md) – Setup, common tasks, settings, and debug tools.
+- [Technical Documentation](https://github.com/mykaadev/NsDungeons/blob/main/Docs/TechDocumentation.md) – Architecture, lifetime, extension points, and tests.
 
+<!-- GH_ONLY_START -->
 ## ❤️ Credits
 <a href="https://github.com/mykaadev/NsDungeons/graphs/contributors"><img src="https://contrib.rocks/image?repo=mykaadev/NsDungeons"/></a>
 
