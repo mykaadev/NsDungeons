@@ -71,7 +71,7 @@ struct NSDUNGEONS_API FNsDungeonGenerator
     /** Makes the cell layout of a graph: a room for each used node, inside its block, and a straight corridor with a door for each edge. The same graph and seed give the same layout */
     static FNsDungeonLayout BuildLayout(const FNsDungeonGraph& Graph, const FNsDungeonSettings& Settings, int32 Seed);
 
-    /** Checks a graph: the party walks from the start, picks up the keys it reaches, and opens the locks it can. Returns true when the goal and every key are reached */
+    /** Checks a graph: the party walks from the start, picks up the keys it reaches, and opens the locks it can. Returns true when the goal and every key are reached, and each lock cuts off some room without its keys */
     static bool Validate(const FNsDungeonGraph& Graph, FString& OutMessage);
 
 private:
@@ -104,6 +104,9 @@ private:
 
     /** Finds a path on the grid from one node to another, around the blocked nodes. Random costs bend the path, so each seed gives a new shape */
     static TArray<int32> FindGridPath(const FNsDungeonGraph& Graph, int32 From, int32 To, const TSet<int32>& Blocked, FRandomStream& Random);
+
+    /** Returns every node that the party reaches from the start with a set of keys */
+    static TSet<int32> Reach(const FNsDungeonGraph& Graph, const TSet<int32>& HeldKeys);
 
     /** Adds a step to the result when the caller keeps them */
     static void KeepStep(FNsDungeonResult& Result, bool bKeepSteps, FName Name, const FString& Note, const FNsDungeonGraph& Graph);

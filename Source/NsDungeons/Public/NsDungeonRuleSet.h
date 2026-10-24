@@ -103,6 +103,7 @@ struct NSDUNGEONS_API FNsDungeonSettings
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Layout", meta = (ClampMin = "1"))
     int32 RoomCellsMin = 3;
 
+    /** The largest room */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Layout", meta = (ClampMin = "1"))
     int32 RoomCellsMax = 5;
 
@@ -114,6 +115,7 @@ struct NSDUNGEONS_API FNsDungeonSettings
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Locks")
     FName LockKind = TEXT("Door");
 
+    /** The kind name of a key */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Locks")
     FName KeyKind = TEXT("Key");
 

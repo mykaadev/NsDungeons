@@ -82,6 +82,10 @@ struct NSDUNGEONS_API FNsDungeonNode
     /** True for a room on a minor cycle */
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     bool bMinorCycle = false;
+
+    /** The lock that closes off the area of this room, or INDEX_NONE. Later steps leave such a room alone, so no new way leads around the lock */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    int32 LockedArea = INDEX_NONE;
 };
 
 /** A connection between two neighbor nodes */
@@ -90,10 +94,14 @@ struct NSDUNGEONS_API FNsDungeonEdge
 {
     GENERATED_BODY()
 
-    /** The two nodes. They are neighbors on the grid */
+    /** Returns the other node of the edge */
+    int32 GetOther(int32 Node) const { return Node == NodeA ? NodeB : NodeA; }
+
+    /** The first node. The two nodes are neighbors on the grid */
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     int32 NodeA = INDEX_NONE;
 
+    /** The second node */
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     int32 NodeB = INDEX_NONE;
 
@@ -108,9 +116,6 @@ struct NSDUNGEONS_API FNsDungeonEdge
     /** The node that a OneWay edge can be passed from, or INDEX_NONE */
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     int32 OneWayFrom = INDEX_NONE;
-
-    /** Returns the other node of the edge */
-    int32 GetOther(int32 Node) const { return Node == NodeA ? NodeB : NodeA; }
 };
 
 /** A lock: a Locked edge and the keys that open it */
@@ -168,37 +173,6 @@ struct NSDUNGEONS_API FNsDungeonGraph
 {
     GENERATED_BODY()
 
-    /** The size of the grid */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    FIntPoint Size = FIntPoint(5, 5);
-
-    /** Every node, row by row */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    TArray<FNsDungeonNode> Nodes;
-
-    /** Every connection */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    TArray<FNsDungeonEdge> Edges;
-
-    /** Every lock */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    TArray<FNsDungeonLock> Locks;
-
-    /** Every key */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    TArray<FNsDungeonKey> Keys;
-
-    /** The start and the goal node */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    int32 StartNode = INDEX_NONE;
-
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    int32 GoalNode = INDEX_NONE;
-
-    /** The shape of the main loop */
-    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
-    ENsDungeonCycleType MajorCycle = ENsDungeonCycleType::Simple;
-
     /** Makes an empty grid of unused nodes */
     void Reset(const FIntPoint& InSize);
 
@@ -237,4 +211,36 @@ struct NSDUNGEONS_API FNsDungeonGraph
 
     /** Returns the number of doors from one node to every other node, through every edge. INDEX_NONE for a node out of reach */
     TArray<int32> GetDistances(int32 From) const;
+
+    /** The size of the grid */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    FIntPoint Size = FIntPoint(5, 5);
+
+    /** Every node, row by row */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    TArray<FNsDungeonNode> Nodes;
+
+    /** Every connection */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    TArray<FNsDungeonEdge> Edges;
+
+    /** Every lock */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    TArray<FNsDungeonLock> Locks;
+
+    /** Every key */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    TArray<FNsDungeonKey> Keys;
+
+    /** The start node */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    int32 StartNode = INDEX_NONE;
+
+    /** The goal node */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    int32 GoalNode = INDEX_NONE;
+
+    /** The shape of the main loop */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    ENsDungeonCycleType MajorCycle = ENsDungeonCycleType::Simple;
 };

@@ -5,17 +5,14 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-namespace NsDungeonTests
+/** Settings that pick only one major cycle type, with no side loop and no shortcut, so the major cycle shows alone */
+static FNsDungeonSettings MakeMajorOnlySettings(const ENsDungeonCycleType Type)
 {
-    /** Settings that pick only one major cycle type, with no side loop and no shortcut, so the major cycle shows alone */
-    FNsDungeonSettings MakeSettings(const ENsDungeonCycleType Type)
-    {
-        FNsDungeonSettings Settings;
-        Settings.MajorCycles = { { Type, 1 } };
-        Settings.MinorCycles = 0;
-        Settings.HiddenShortcutChance = 0.0f;
-        return Settings;
-    }
+    FNsDungeonSettings Settings;
+    Settings.MajorCycles = { { Type, 1 } };
+    Settings.MinorCycles = 0;
+    Settings.HiddenShortcutChance = 0.0f;
+    return Settings;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNsDungeonCycleTypesTest, "NsDungeons.Generator.CycleTypes", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -25,7 +22,7 @@ bool FNsDungeonCycleTypesTest::RunTest(const FString& Parameters)
     // Each cycle type gives a valid dungeon for 200 seeds, with the locks and keys of its type
     for (const ENsDungeonCycleType Type : { ENsDungeonCycleType::Simple, ENsDungeonCycleType::LockAndKey, ENsDungeonCycleType::TwoKeys, ENsDungeonCycleType::OneWayValve })
     {
-        const FNsDungeonSettings Settings = NsDungeonTests::MakeSettings(Type);
+        const FNsDungeonSettings Settings = MakeMajorOnlySettings(Type);
         const int32 ExpectedKeys = Type == ENsDungeonCycleType::TwoKeys ? 2 : Type == ENsDungeonCycleType::LockAndKey ? 1 : 0;
         int32 Failures = 0;
         for (int32 Seed = 0; Seed < 200; ++Seed)
@@ -48,7 +45,7 @@ bool FNsDungeonLockBlocksTest::RunTest(const FString& Parameters)
     // Without its keys, a lock and key dungeon has no way to the goal: the lock matters
     for (int32 Seed = 0; Seed < 50; ++Seed)
     {
-        FNsDungeonResult Result = FNsDungeonGenerator::Generate(NsDungeonTests::MakeSettings(ENsDungeonCycleType::LockAndKey), Seed);
+        FNsDungeonResult Result = FNsDungeonGenerator::Generate(MakeMajorOnlySettings(ENsDungeonCycleType::LockAndKey), Seed);
         Result.Graph.Keys.Reset();
         for (FNsDungeonLock& Lock : Result.Graph.Locks)
         {
@@ -82,6 +79,9 @@ bool FNsDungeonSameSeedTest::RunTest(const FString& Parameters)
             && First.Graph.Edges[Index].Kind == Second.Graph.Edges[Index].Kind;
     }
     TestTrue(TEXT("Same edges"), bSameEdges);
+    TestEqual(TEXT("Same locks"), First.Graph.Locks.Num(), Second.Graph.Locks.Num());
+    TestEqual(TEXT("Same keys"), First.Graph.Keys.Num(), Second.Graph.Keys.Num());
+    TestEqual(TEXT("Same rooms in the layout"), First.Layout.Rooms.Num(), Second.Layout.Rooms.Num());
     TestTrue(TEXT("The steps are kept"), First.Steps.Num() >= 4);
     TestTrue(TEXT("The last step is the result"), !First.Steps.IsEmpty() && First.Steps.Last().Graph.Edges.Num() == First.Graph.Edges.Num());
     return true;
@@ -136,8 +136,7 @@ bool FNsDungeonFullFloorTest::RunTest(const FString& Parameters)
         const FNsDungeonGraph& Graph = Result.Graph;
         Invalid += Result.bValid ? 0 : 1;
         Small += Graph.CountUsedNodes() >= Settings.TargetRooms ? 0 : 1;
-        // Independent loops = edges - rooms + 1. The major cycle gives one, each side loop one more
-        NoLoops += Graph.Edges.Num() - Graph.CountUsedNodes() + 1 >= 2 ? 0 : 1;
+        NoLoops += Graph.Nodes.ContainsByPredicate([](const FNsDungeonNode& Node) { return Node.bMinorCycle; }) ? 0 : 1;
         int32 Tagged = 0;
         for (const FNsDungeonNode& Node : Graph.Nodes)
         {

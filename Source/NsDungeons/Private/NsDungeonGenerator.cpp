@@ -150,6 +150,7 @@ void FNsDungeonGenerator::ApplyCycleType(const FNsDungeonSettings& Settings, con
     case ENsDungeonCycleType::LockAndKey:
     {
         const int32 Lock = Graph.AddLock(Into0, Settings.LockKind);
+        Graph.Nodes[Graph.GoalNode].LockedArea = Lock;
         Graph.AddKey(Lock, Before1, Settings.KeyKind);
         MakeValve();
         break;
@@ -158,6 +159,7 @@ void FNsDungeonGenerator::ApplyCycleType(const FNsDungeonSettings& Settings, con
     {
         // One key waits at the end of arc 1, the other halfway along arc 0
         const int32 Lock = Graph.AddLock(Into0, Settings.LockKind);
+        Graph.Nodes[Graph.GoalNode].LockedArea = Lock;
         Graph.AddKey(Lock, Before1, Settings.KeyKind);
         Graph.AddKey(Lock, Arc0[(Arc0.Num() - 1) / 2], Settings.KeyKind);
         MakeValve();
@@ -264,22 +266,7 @@ bool FNsDungeonGenerator::Validate(const FNsDungeonGraph& Graph, FString& OutMes
     for (bool bChanged = true; bChanged;)
     {
         bChanged = false;
-        Reached.Reset();
-        TArray<int32> Open = { Graph.StartNode };
-        Reached.Add(Graph.StartNode);
-        while (!Open.IsEmpty())
-        {
-            const int32 Node = Open.Pop();
-            for (const int32 Edge : Graph.GetEdgesOf(Node))
-            {
-                const int32 Next = Graph.Edges[Edge].GetOther(Node);
-                if (!Reached.Contains(Next) && Graph.CanPass(Edge, Node, HeldKeys))
-                {
-                    Reached.Add(Next);
-                    Open.Add(Next);
-                }
-            }
-        }
+        Reached = Reach(Graph, HeldKeys);
         for (const FNsDungeonKey& Key : Graph.Keys)
         {
             if (Reached.Contains(Key.Node) && !HeldKeys.Contains(Key.KeyId))
@@ -299,9 +286,43 @@ bool FNsDungeonGenerator::Validate(const FNsDungeonGraph& Graph, FString& OutMes
         OutMessage = FString::Printf(TEXT("%d of %d keys cannot be reached"), Graph.Keys.Num() - HeldKeys.Num(), Graph.Keys.Num());
         return false;
     }
+    // Each lock must matter: with its keys held back, some room is out of reach. A lock that a second way goes around gates nothing
+    for (const FNsDungeonLock& Lock : Graph.Locks)
+    {
+        TSet<int32> AllButThese = HeldKeys;
+        for (const int32 KeyId : Lock.KeyIds)
+        {
+            AllButThese.Remove(KeyId);
+        }
+        if (Reach(Graph, AllButThese).Num() == Reached.Num())
+        {
+            OutMessage = FString::Printf(TEXT("Lock %d gates nothing: a second way goes around it"), Lock.LockId);
+            return false;
+        }
+    }
     OutMessage = FString::Printf(TEXT("Valid: %d rooms, cycle %s, %d locks, %d keys"), Graph.CountUsedNodes(), *UEnum::GetValueAsString(Graph.MajorCycle),
         Graph.Locks.Num(), Graph.Keys.Num());
     return true;
+}
+
+TSet<int32> FNsDungeonGenerator::Reach(const FNsDungeonGraph& Graph, const TSet<int32>& HeldKeys)
+{
+    TSet<int32> Reached = { Graph.StartNode };
+    TArray<int32> Open = { Graph.StartNode };
+    while (!Open.IsEmpty())
+    {
+        const int32 Node = Open.Pop();
+        for (const int32 Edge : Graph.GetEdgesOf(Node))
+        {
+            const int32 Next = Graph.Edges[Edge].GetOther(Node);
+            if (!Reached.Contains(Next) && Graph.CanPass(Edge, Node, HeldKeys))
+            {
+                Reached.Add(Next);
+                Open.Add(Next);
+            }
+        }
+    }
+    return Reached;
 }
 
 void FNsDungeonGenerator::KeepStep(FNsDungeonResult& Result, const bool bKeepSteps, const FName Name, const FString& Note, const FNsDungeonGraph& Graph)

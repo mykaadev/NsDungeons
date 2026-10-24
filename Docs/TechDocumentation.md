@@ -32,7 +32,9 @@ The runtime module depends on Core, CoreUObject, and Engine only.
 6. **Hidden shortcut.** By chance, a `Hidden` edge between the two grid neighbors with the largest gap in doors from the start (more than 2).
 7. **Dead ends.** New rooms next to rooms (not the goal) until `TargetRooms`.
 8. **Resolve.** `Distance` from the start, `bDeadEnd`, and the room tags by place.
-9. **Validation.** A walk from the start over the edges that `CanPass` allows. Each reached key goes into the held set, and the walk runs again until nothing changes. Valid when the goal and every key are reached.
+9. **Validation.** A walk from the start over the edges that `CanPass` allows. Each reached key goes into the held set, and the walk runs again until nothing changes. Valid when the goal and every key are reached, and each lock matters: with its keys held back, some room is out of reach. A lock that a second way goes around fails the seed.
+
+A lock marks the rooms behind it with `LockedArea` (the goal for a major lock, the side loop for a minor lock). The later steps never start a side loop or a hidden door from such a room, so they cannot make a way around the lock.
 
 With `bKeepSteps`, each step stores a copy of the graph in `Result.Steps` for the editor preview.
 

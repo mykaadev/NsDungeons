@@ -14,7 +14,8 @@ void FNsDungeonGenerator::AddMinorCycles(const FNsDungeonSettings& Settings, FRa
             TArray<int32> Used;
             for (int32 Node = 0; Node < Graph.Nodes.Num(); ++Node)
             {
-                if (Graph.IsUsed(Node) && Node != Graph.GoalNode)
+                // A room in a locked area stays out: a new way from it would lead around its lock
+                if (Graph.IsUsed(Node) && Node != Graph.GoalNode && Graph.Nodes[Node].LockedArea == INDEX_NONE)
                 {
                     Used.Add(Node);
                 }
@@ -32,7 +33,7 @@ void FNsDungeonGenerator::AddMinorCycles(const FNsDungeonSettings& Settings, FRa
             {
                 TArray<int32> Rooms = Graph.GetGridNeighbors(Way.Last()).FilterByPredicate([&Graph, From](const int32 Node)
                 {
-                    return Graph.IsUsed(Node) && Node != From && Node != Graph.GoalNode;
+                    return Graph.IsUsed(Node) && Node != From && Node != Graph.GoalNode && Graph.Nodes[Node].LockedArea == INDEX_NONE;
                 });
                 if (!Rooms.IsEmpty() && Step > 0)
                 {
@@ -78,9 +79,17 @@ void FNsDungeonGenerator::AddMinorCycles(const FNsDungeonSettings& Settings, FRa
                 Graph.Edges[Exit].OneWayFrom = Way.Last();
                 TArray<int32> KeyRooms = Used.FilterByPredicate([&Graph](const int32 Node) { return Node != Graph.StartNode; });
                 Graph.AddKey(Lock, KeyRooms.IsEmpty() ? Graph.StartNode : KeyRooms[Random.RandRange(0, KeyRooms.Num() - 1)], Settings.KeyKind);
+                for (const int32 Node : Way)
+                {
+                    Graph.Nodes[Node].LockedArea = Lock;
+                }
                 FString Message;
                 if (!Validate(Graph, Message))
                 {
+                    for (const int32 Node : Way)
+                    {
+                        Graph.Nodes[Node].LockedArea = INDEX_NONE;
+                    }
                     Graph.Keys.Pop();
                     Graph.Locks.Pop();
                     Graph.Edges[Entry].Kind = ENsDungeonEdgeKind::Open;
@@ -110,7 +119,7 @@ void FNsDungeonGenerator::AddHiddenShortcut(const FNsDungeonSettings& Settings, 
         for (const int32 Next : Graph.GetGridNeighbors(Node))
         {
             // Never into the goal or a side loop room: a shortcut there would go around their locks
-            const auto Allowed = [&Graph](const int32 Room) { return Graph.IsUsed(Room) && Room != Graph.GoalNode && !Graph.Nodes[Room].bMinorCycle; };
+            const auto Allowed = [&Graph](const int32 Room) { return Graph.IsUsed(Room) && Room != Graph.GoalNode && Graph.Nodes[Room].LockedArea == INDEX_NONE; };
             if (Node < Next && Allowed(Node) && Allowed(Next) && Graph.FindEdge(Node, Next) == INDEX_NONE
                 && Distances[Node] != INDEX_NONE && Distances[Next] != INDEX_NONE && FMath::Abs(Distances[Node] - Distances[Next]) > BestGain)
             {
