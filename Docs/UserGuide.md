@@ -4,7 +4,7 @@
 
 NsDungeons makes dungeon floors with a lock-and-key structure, after the method of Unexplored (Boris the Brave, 2021). It gives an abstract graph on a fixed grid (rooms, doors, locks, keys, one-way doors), and later a cell layout of that graph. An editor window shows each step of a generation.
 
-NsDungeons does not build meshes, move characters, or find paths. The game builds the floor from the layout and owns its walk grid and its movement.
+NsDungeons does not build game floors, move characters, or find paths. The game builds its floor from the layout and owns its walk grid and its movement. The demo actor builds a plain greybox floor only to show the plugin.
 
 ## Setup
 
@@ -77,6 +77,19 @@ Blueprint: `Generate Dungeon` (rule set, seed) returns the result with its graph
 | `LockAndKey` | The goal sits behind a lock. Its key waits at the end of the other route, which a one-way door closes off from the goal |
 | `TwoKeys` | As `LockAndKey`, with a second key halfway along the locked route |
 | `OneWayValve` | One route to the goal. The other route is a one-way way back from the goal |
+
+## Demo
+
+Open the map `/NsDungeons/Demo/L_NsDungeonsDemo` (Content Browser, Plugins, NsDungeons Content) and press Play. `NsDungeonDemoActor` builds a greybox floor from its rule set and seed: room floors, corridors, walls, and door posts in the colors of their kind, with the play overlay on.
+
+| Key | Effect |
+|---|---|
+| N, P | Next seed, previous seed |
+| R | A random seed |
+| 1 to 9 | The graph of that step floats over the floor |
+| 0 | Hides the graph |
+
+Change `Seed` or `RuleSet` in the details panel: the floor rebuilds in the editor viewport. The map is made by `Scripts/make_demo_map.py`. The demo actor is a showcase and a test bench, not a floor builder for a game. Leave the `Demo` folder out of a cook (Project Settings, Packaging, Directories to never cook) when a game ships with NsDungeons.
 
 ## Debug
 

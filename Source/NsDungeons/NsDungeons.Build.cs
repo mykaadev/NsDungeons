@@ -16,5 +16,13 @@ public class NsDungeons : ModuleRules
                 "Engine",
             }
         );
+
+        // The demo actor reads keys in play
+        PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "InputCore",
+            }
+        );
     }
 }
