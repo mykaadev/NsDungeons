@@ -154,4 +154,60 @@ bool FNsDungeonFullFloorTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNsDungeonLayoutTest, "NsDungeons.Layout.Rooms", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FNsDungeonLayoutTest::RunTest(const FString& Parameters)
+{
+    // Each room has its cells, no two rooms touch, each edge has a door in a corridor, and every room can be walked to through the doors
+    int32 Faults = 0;
+    for (int32 Seed = 0; Seed < 100; ++Seed)
+    {
+        const FNsDungeonResult Result = FNsDungeonGenerator::Generate(FNsDungeonSettings(), Seed * 31);
+        const FNsDungeonLayout& Layout = Result.Layout;
+        bool bFault = Layout.Rooms.Num() != Result.Graph.CountUsedNodes() || Layout.Doors.Num() != Result.Graph.Edges.Num();
+        for (int32 A = 0; A < Layout.Rooms.Num(); ++A)
+        {
+            for (int32 B = A + 1; B < Layout.Rooms.Num(); ++B)
+            {
+                const FIntRect RectA(Layout.Rooms[A].Min, Layout.Rooms[A].Min + Layout.Rooms[A].Size);
+                const FIntRect RectB(Layout.Rooms[B].Min, Layout.Rooms[B].Min + Layout.Rooms[B].Size);
+                bFault |= RectA.Intersect(RectB);
+            }
+        }
+        for (const FNsDungeonLayoutDoor& Door : Layout.Doors)
+        {
+            bFault |= Layout.GetCell(Door.Cell) != ENsDungeonCell::Door;
+        }
+        // A flood over every floor cell from the start room reaches every room
+        const FNsDungeonLayoutRoom* const Start = Layout.FindRoomOfNode(Result.Graph.StartNode);
+        TSet<FIntPoint> Reached;
+        TArray<FIntPoint> Open;
+        if (Start != nullptr)
+        {
+            Open.Add(Start->GetCenter());
+            Reached.Add(Start->GetCenter());
+        }
+        while (!Open.IsEmpty())
+        {
+            const FIntPoint Cell = Open.Pop();
+            for (const FIntPoint& Step : { FIntPoint(1, 0), FIntPoint(-1, 0), FIntPoint(0, 1), FIntPoint(0, -1) })
+            {
+                const FIntPoint Next = Cell + Step;
+                if (!Reached.Contains(Next) && Layout.GetCell(Next) != ENsDungeonCell::Empty)
+                {
+                    Reached.Add(Next);
+                    Open.Add(Next);
+                }
+            }
+        }
+        for (const FNsDungeonLayoutRoom& Room : Layout.Rooms)
+        {
+            bFault |= !Reached.Contains(Room.GetCenter());
+        }
+        Faults += bFault ? 1 : 0;
+    }
+    TestEqual(TEXT("Every layout is whole"), Faults, 0);
+    return true;
+}
+
 #endif

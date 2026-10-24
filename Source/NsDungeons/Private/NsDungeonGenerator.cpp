@@ -15,6 +15,7 @@ FNsDungeonResult FNsDungeonGenerator::Generate(const FNsDungeonSettings& Setting
         if (TryGenerate(Settings, Random, Result, bKeepSteps) && Validate(Result.Graph, Result.Message))
         {
             Result.bValid = true;
+            Result.Layout = BuildLayout(Result.Graph, Settings, Result.Seed);
             if (Try > 0)
             {
                 UE_LOG(LogNsDungeons, Log, TEXT("Seed %d gave no valid dungeon. Seed %d did."), Seed, Result.Seed);

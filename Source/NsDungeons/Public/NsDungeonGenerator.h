@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NsDungeonGraph.h"
+#include "NsDungeonLayout.h"
 #include "NsDungeonRuleSet.h"
 #include "NsDungeonGenerator.generated.h"
 
@@ -48,6 +49,10 @@ struct NSDUNGEONS_API FNsDungeonResult
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     FNsDungeonGraph Graph;
 
+    /** The cell layout of the dungeon */
+    UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
+    FNsDungeonLayout Layout;
+
     /** The graph after each step, when the caller asked for them */
     UPROPERTY(BlueprintReadOnly, Category = "NsDungeons")
     TArray<FNsDungeonStep> Steps;
@@ -62,6 +67,9 @@ struct NSDUNGEONS_API FNsDungeonGenerator
 {
     /** Makes a dungeon. A seed that gives no valid dungeon tries the next seeds, up to MaxSeedTries. With bKeepSteps, the result keeps the graph after each step */
     static FNsDungeonResult Generate(const FNsDungeonSettings& Settings, int32 Seed, bool bKeepSteps = false);
+
+    /** Makes the cell layout of a graph: a room for each used node, inside its block, and a straight corridor with a door for each edge. The same graph and seed give the same layout */
+    static FNsDungeonLayout BuildLayout(const FNsDungeonGraph& Graph, const FNsDungeonSettings& Settings, int32 Seed);
 
     /** Checks a graph: the party walks from the start, picks up the keys it reaches, and opens the locks it can. Returns true when the goal and every key are reached */
     static bool Validate(const FNsDungeonGraph& Graph, FString& OutMessage);

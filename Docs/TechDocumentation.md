@@ -36,6 +36,12 @@ The runtime module depends on Core, CoreUObject, and Engine only.
 
 With `bKeepSteps`, each step stores a copy of the graph in `Result.Steps` for the editor preview.
 
+## The layout
+
+`BuildLayout` (`NsDungeonLayoutBuilder.cpp`) runs after a valid graph, with its own random stream from the seed. Each node owns a block of `RoomCellsMax` cells, and `CorridorCells` of rock lie between blocks. A room takes a random size from `RoomCellsMin` to `RoomCellsMax` and sits in the middle of its block, so the middle row and the middle column of a block cross its room. The corridor of an edge runs straight along that line from room A to room B, and its middle cell is the door, with the kind of the edge and the direction from A to B.
+
+`UNsDungeonLibrary` gives the Blueprint calls: generate, read a cell, cell to local, local to cell.
+
 ## Extension points
 
 - A new major cycle type: add it to `ENsDungeonCycleType` and a case in `ApplyCycleType`. The validation checks it with no other change.
@@ -51,4 +57,5 @@ With `bKeepSteps`, each step stores a copy of the graph in `Result.Steps` for th
 | `NsDungeons.Generator.LockBlocksGoal` | Without its keys, a lock and key dungeon has no way to the goal |
 | `NsDungeons.Generator.SameSeed` | The same seed gives the same graph, and the steps end on the result |
 | `NsDungeons.Generator.FullFloor` | 200 seeds with every step on: valid, the target size, a side loop, every tag placed, most floors with a locked side loop |
+| `NsDungeons.Layout.Rooms` | 100 layouts: a room for each node, no rooms that touch, a door for each edge, every room reached over the cells |
 | `NsDungeons.Generator.Validate` | A hand-made graph: a lock with no key, a key next to the start, a one-way door from the goal side |

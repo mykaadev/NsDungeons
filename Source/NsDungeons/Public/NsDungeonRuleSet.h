@@ -99,6 +99,17 @@ struct NSDUNGEONS_API FNsDungeonSettings
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rooms")
     TArray<FNsDungeonRoomTag> RoomTags;
 
+    /** The smallest and the largest room, in cells on each side. Each room takes a random size between them */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Layout", meta = (ClampMin = "1"))
+    int32 RoomCellsMin = 3;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Layout", meta = (ClampMin = "1"))
+    int32 RoomCellsMax = 5;
+
+    /** The cells between two blocks of rooms. The corridor between two rooms is at least this long */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Layout", meta = (ClampMin = "1"))
+    int32 CorridorCells = 2;
+
     /** The kind name of a lock and of a key, for the game to show */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Locks")
     FName LockKind = TEXT("Door");

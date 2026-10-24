@@ -109,7 +109,9 @@ void FNsDungeonGenerator::AddHiddenShortcut(const FNsDungeonSettings& Settings, 
     {
         for (const int32 Next : Graph.GetGridNeighbors(Node))
         {
-            if (Node < Next && Graph.IsUsed(Node) && Graph.IsUsed(Next) && Graph.FindEdge(Node, Next) == INDEX_NONE
+            // Never into the goal or a side loop room: a shortcut there would go around their locks
+            const auto Allowed = [&Graph](const int32 Room) { return Graph.IsUsed(Room) && Room != Graph.GoalNode && !Graph.Nodes[Room].bMinorCycle; };
+            if (Node < Next && Allowed(Node) && Allowed(Next) && Graph.FindEdge(Node, Next) == INDEX_NONE
                 && Distances[Node] != INDEX_NONE && Distances[Next] != INDEX_NONE && FMath::Abs(Distances[Node] - Distances[Next]) > BestGain)
             {
                 BestGain = FMath::Abs(Distances[Node] - Distances[Next]);

@@ -29,7 +29,7 @@ if (Result.bValid)
 }
 ```
 
-Blueprint: a Blueprint library follows in step D3.
+Blueprint: `Generate Dungeon` (rule set, seed) returns the result with its graph and its layout. `Get Layout Cell`, `Cell To Local`, and `Local To Cell` read the cells.
 
 ## Common Tasks
 
@@ -41,6 +41,8 @@ Blueprint: a Blueprint library follows in step D3.
 | Find the door between two rooms | `Graph.FindEdge(NodeA, NodeB)`, then `Graph.Edges[Edge].Kind` |
 | Find what a key opens | `Graph.Keys[Key].LockId`, then `Graph.Locks[LockId].Edge` |
 | Find the camp room | Put a `RoomTags` entry `Camp` in the rule set, then look for the tag in `Node.Tags` |
+| Build a floor | Read `Result.Layout`: `Cells` (Empty, Room, Corridor, Door), `Rooms` (node, first cell, size), `Doors` (cell, edge, kind, direction). One cell is one step of the walk grid of the game |
+| Place a cell in the world | `UNsDungeonLibrary::CellToLocal(Cell, CellSize)`, then the transform of the floor actor |
 | Know how deep a room is | `Node.Distance`: the doors from the start. `Node.bDeadEnd`, `Node.bMinorCycle` |
 
 ## Rules
@@ -62,6 +64,8 @@ Blueprint: a Blueprint library follows in step D3.
 | `HiddenShortcutChance` | 0.5 | The chance of a hidden door between two rooms side by side that are far apart on the way |
 | `TargetRooms` | 12 | Dead ends grow the floor to this many rooms, as far as the grid allows |
 | `RoomTags` | none | Tags for the game to put on rooms, each with a count and a place: `Any`, `DeadEnd`, `MajorCycle`, `NearGoal`, `Far` |
+| `RoomCellsMin`, `RoomCellsMax` | 3, 5 | The room size in cells on each side. Each room takes a random size between them |
+| `CorridorCells` | 2 | The rock between two blocks of rooms: the shortest corridor |
 | `LockKind`, `KeyKind` | `Door`, `Key` | The names on new locks and keys |
 | `MaxSeedTries` | 20 | The tries with the next seeds before a failure |
 
@@ -82,6 +86,6 @@ Blueprint: a Blueprint library follows in step D3.
 
 ## Limits
 
-- Version 0.2: no cell layout yet (step D3).
+- Version 0.3: corridors are straight, and rooms sit in the middle of their block. The walk grid, the doors that open, and the paths are game code.
 - One tag for each room. A tag with no free room of its place goes on any free room.
 - Only grid neighbors connect. A room has at most 4 doors.
