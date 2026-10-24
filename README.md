@@ -118,8 +118,8 @@ To see the plugin work, open the map `/NsDungeons/Demo/L_NsDungeonsDemo` and pre
 The generation follows the cyclic dungeon method of **Unexplored**, as Boris the Brave describes it (2021).
 
 ## 📚 Documentation
-- [User Guide](https://github.com/mykaadev/NsDungeons/blob/main/Docs/UserGuide.md) – Setup, common tasks, settings, and debug tools.
-- [Technical Documentation](https://github.com/mykaadev/NsDungeons/blob/main/Docs/TechDocumentation.md) – Architecture, lifetime, extension points, and tests.
+- [User Guide](https://mykaadev.github.io/plugins/nsdungeons/user-guide/) – Setup, common tasks, settings, and debug tools.
+- [Technical Documentation](https://mykaadev.github.io/plugins/nsdungeons/tech-documentation/) – Architecture, lifetime, extension points, and tests.
 
 <!-- GH_ONLY_START -->
 ## ❤️ Credits
