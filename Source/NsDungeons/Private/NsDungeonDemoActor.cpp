@@ -110,7 +110,11 @@ void ANsDungeonDemoActor::OnConstruction(const FTransform& Transform)
 void ANsDungeonDemoActor::BeginPlay()
 {
     Super::BeginPlay();
-    Rebuild();
+    // A spawn in play already built the dungeon in OnConstruction: build only when no dungeon is there
+    if (Dungeon.Layout.Rooms.IsEmpty())
+    {
+        Rebuild();
+    }
     // The demo takes the view, shows the overlay, and listens to its keys
     if (APlayerController* const Player = UGameplayStatics::GetPlayerController(this, 0))
     {
