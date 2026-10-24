@@ -5,7 +5,7 @@
 | Module | Type | Content |
 |---|---|---|
 | `NsDungeons` | Runtime | The graph, the rule set, the generator, the validation, the tests |
-| `NsDungeonsEditor` | Editor | The NsDungeons Preview tab (step D4) |
+| `NsDungeonsEditor` | Editor | The NsDungeons Preview tab: `SNsDungeonPreview` (controls) and `SNsDungeonView` (paints a graph step or the layout). The `NsDungeons.SavePreview` command renders the preview off screen with `FWidgetRenderer` |
 
 The runtime module depends on Core, CoreUObject, and Engine only.
 

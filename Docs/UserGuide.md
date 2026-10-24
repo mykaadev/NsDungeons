@@ -82,7 +82,9 @@ Blueprint: `Generate Dungeon` (rule set, seed) returns the result with its graph
 
 - Log category: `LogNsDungeons`. A seed that fails logs the seed that worked. A failure of every try logs an error with the reason.
 - Tests: `Automation RunTests NsDungeons`.
-- The editor preview window comes in step D4, and the play overlay in step D5.
+- **NsDungeons Preview**: Tools, NsDungeons Preview. Pick a rule set (none uses the default settings) and a seed, then Generate, Next seed, or Random seed. The Step slider steps through the generation. The graph of the step shows on the left, and the cell layout on the right. The text gives the step, the validation result, and the seed that worked. The legend under the views gives the colors.
+- `NsDungeons.SavePreview <Seed> <File.png>` (editor console): saves a picture of the preview for a seed, with the default settings.
+- The play overlay comes in step D5.
 
 ## Limits
 

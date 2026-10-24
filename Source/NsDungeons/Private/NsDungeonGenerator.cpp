@@ -52,7 +52,7 @@ bool FNsDungeonGenerator::TryGenerate(const FNsDungeonSettings& Settings, FRando
 
     Graph.MajorCycle = PickCycleType(Settings, Random);
     ApplyCycleType(Settings, Graph.MajorCycle, Arc0, Arc1, Graph);
-    KeepStep(Result, bKeepSteps, TEXT("CycleType"), FString::Printf(TEXT("Cycle type %s"), *UEnum::GetValueAsString(Graph.MajorCycle)), Graph);
+    KeepStep(Result, bKeepSteps, TEXT("CycleType"), FString::Printf(TEXT("Cycle type %s"), *UEnum::GetDisplayValueAsText(Graph.MajorCycle).ToString()), Graph);
 
     AddMinorCycles(Settings, Random, Graph);
     KeepStep(Result, bKeepSteps, TEXT("MinorCycles"), FString::Printf(TEXT("Side loops, %d locks in all"), Graph.Locks.Num()), Graph);
@@ -300,7 +300,7 @@ bool FNsDungeonGenerator::Validate(const FNsDungeonGraph& Graph, FString& OutMes
             return false;
         }
     }
-    OutMessage = FString::Printf(TEXT("Valid: %d rooms, cycle %s, %d locks, %d keys"), Graph.CountUsedNodes(), *UEnum::GetValueAsString(Graph.MajorCycle),
+    OutMessage = FString::Printf(TEXT("Valid: %d rooms, cycle %s, %d locks, %d keys"), Graph.CountUsedNodes(), *UEnum::GetDisplayValueAsText(Graph.MajorCycle).ToString(),
         Graph.Locks.Num(), Graph.Keys.Num());
     return true;
 }

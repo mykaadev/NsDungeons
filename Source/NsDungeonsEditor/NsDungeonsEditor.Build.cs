@@ -20,9 +20,14 @@ public class NsDungeonsEditor : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
+                "InputCore",
                 "NsDungeons",
+                "PropertyEditor",
                 "Slate",
                 "SlateCore",
+                "ToolMenus",
+                "UMG",
+                "RenderCore",
                 "UnrealEd",
             }
         );
