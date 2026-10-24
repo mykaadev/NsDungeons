@@ -15,9 +15,13 @@ class UNsDungeonRuleSet;
 class SNsDungeonPreview : public SCompoundWidget
 {
 public:
-    SLATE_BEGIN_ARGS(SNsDungeonPreview) : _Seed(1) {}
+    SLATE_BEGIN_ARGS(SNsDungeonPreview) : _Seed(1), _Step(INDEX_NONE) {}
         /** The first seed */
         SLATE_ARGUMENT(int32, Seed)
+        /** The first step to show, or INDEX_NONE for the last one */
+        SLATE_ARGUMENT(int32, Step)
+        /** Settings to use with no rule set, in place of the default settings */
+        SLATE_ARGUMENT(TOptional<FNsDungeonSettings>, Settings)
     SLATE_END_ARGS()
 
     void Construct(const FArguments& InArgs);
@@ -44,6 +48,9 @@ private:
 
     /** The seed */
     int32 Seed = 1;
+
+    /** The settings with no rule set */
+    FNsDungeonSettings FallbackSettings;
 
     /** The step that the graph view shows */
     int32 StepIndex = 0;

@@ -96,7 +96,7 @@ Change `Seed` or `RuleSet` in the details panel: the floor rebuilds in the edito
 - Log category: `LogNsDungeons`. A seed that fails logs the seed that worked. A failure of every try logs an error with the reason.
 - Tests: `Automation RunTests NsDungeons`.
 - **NsDungeons Preview**: Tools, NsDungeons Preview. Pick a rule set (none uses the default settings) and a seed, then Generate, Next seed, or Random seed. The Step slider steps through the generation. The graph of the step shows on the left, and the cell layout on the right. The text gives the step, the validation result, and the seed that worked. The legend under the views gives the colors.
-- `NsDungeons.SavePreview <Seed> <File.png>` (editor console): saves a picture of the preview for a seed, with the default settings.
+- `NsDungeons.SavePreview <Seed> <File.png> [Step] [CycleType]` (editor console): saves a picture of the preview for a seed. The step starts at 1 (the last step when left out). A cycle type such as `LockAndKey` shows that major cycle alone, with no side loop and no shortcut.
 - **Play overlay**: add a `NsDungeonDebugComponent` to the floor actor and call `SetDungeon(Result, CellSize)`. The console variable `NsDungeons.ShowDebug 1` then draws the rooms, the doors in their kind colors, and labels for the start, the goal, the tags, the keys, and the locks. Cell (0, 0) starts at the actor origin. Non-shipping builds only.
 
 ## Limits

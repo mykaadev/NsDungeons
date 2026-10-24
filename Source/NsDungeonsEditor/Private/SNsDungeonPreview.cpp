@@ -18,6 +18,7 @@ void SNsDungeonPreview::Construct(const FArguments& InArgs)
 {
     Result = MakeShared<FNsDungeonResult>();
     Seed = InArgs._Seed;
+    FallbackSettings = InArgs._Settings.Get(FNsDungeonSettings());
     // The legend: the colors of the views
     const FString Legend = TEXT("Rooms: green start, gold goal, grey room, blue side loop, dark ring dead end, number = doors from the start.  ")
         TEXT("Doors: grey open, red locked (L), orange one-way (dot on the open side), purple hidden.  Keys: gold box (K = the lock it opens).");
@@ -107,11 +108,15 @@ void SNsDungeonPreview::Construct(const FArguments& InArgs)
         ]
     ];
     Generate();
+    if (Result->Steps.IsValidIndex(InArgs._Step))
+    {
+        StepIndex = InArgs._Step;
+    }
 }
 
 void SNsDungeonPreview::Generate()
 {
-    *Result = FNsDungeonGenerator::Generate(RuleSet.IsValid() ? RuleSet->Settings : FNsDungeonSettings(), Seed, true);
+    *Result = FNsDungeonGenerator::Generate(RuleSet.IsValid() ? RuleSet->Settings : FallbackSettings, Seed, true);
     StepIndex = FMath::Max(Result->Steps.Num() - 1, 0);
 }
 

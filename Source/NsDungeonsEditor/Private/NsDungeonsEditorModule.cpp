@@ -30,7 +30,7 @@ public:
         .SetMenuType(ETabSpawnerMenuType::Hidden);
         UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FNsDungeonsEditorModule::RegisterMenus));
         SavePreviewCommand = IConsoleManager::Get().RegisterConsoleCommand(TEXT("NsDungeons.SavePreview"),
-            TEXT("Saves a picture of the NsDungeons Preview for a seed: NsDungeons.SavePreview <Seed> <File.png>"),
+            TEXT("Saves a picture of the NsDungeons Preview: NsDungeons.SavePreview <Seed> <File.png> [Step from 1] [Cycle type: the major cycle alone]"),
             FConsoleCommandWithArgsDelegate::CreateStatic(&FNsDungeonsEditorModule::SavePreview));
     }
 
@@ -63,8 +63,23 @@ private:
     {
         const int32 Seed = Args.IsValidIndex(0) ? FCString::Atoi(*Args[0]) : 1;
         const FString File = Args.IsValidIndex(1) ? Args[1] : FPaths::ProjectSavedDir() / TEXT("NsDungeonsPreview.png");
+        const int32 Step = Args.IsValidIndex(2) ? FCString::Atoi(*Args[2]) - 1 : INDEX_NONE;
+        TOptional<FNsDungeonSettings> Settings;
+        if (Args.IsValidIndex(3))
+        {
+            // One major cycle type alone: no side loop and no shortcut, so the shape of the cycle shows clearly
+            const int64 Cycle = StaticEnum<ENsDungeonCycleType>()->GetValueByNameString(Args[3]);
+            if (Cycle != INDEX_NONE)
+            {
+                FNsDungeonSettings Alone;
+                Alone.MajorCycles = { { static_cast<ENsDungeonCycleType>(Cycle), 1 } };
+                Alone.MinorCycles = 0;
+                Alone.HiddenShortcutChance = 0.0f;
+                Settings = Alone;
+            }
+        }
         const FVector2D Size(1600.0, 900.0);
-        const TSharedRef<SNsDungeonPreview> Preview = SNew(SNsDungeonPreview).Seed(Seed);
+        const TSharedRef<SNsDungeonPreview> Preview = SNew(SNsDungeonPreview).Seed(Seed).Step(Step).Settings(Settings);
         UTextureRenderTarget2D* const Target = NewObject<UTextureRenderTarget2D>();
         Target->InitCustomFormat(Size.X, Size.Y, PF_B8G8R8A8, true);
         Target->UpdateResourceImmediate(true);
