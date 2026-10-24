@@ -1,0 +1,49 @@
+# NsDungeons Tech Documentation
+
+## Modules
+
+| Module | Type | Content |
+|---|---|---|
+| `NsDungeons` | Runtime | The graph, the rule set, the generator, the validation, the tests |
+| `NsDungeonsEditor` | Editor | The NsDungeons Preview tab (step D4) |
+
+The runtime module depends on Core, CoreUObject, and Engine only.
+
+## Data
+
+| Type | Role |
+|---|---|
+| `FNsDungeonGraph` | A fixed grid of `FNsDungeonNode`, a list of `FNsDungeonEdge` between grid neighbors, and the `FNsDungeonLock` and `FNsDungeonKey` lists. Node index = `Y * Size.X + X` |
+| `FNsDungeonEdge` | Two nodes, a kind (`Open`, `Locked`, `OneWay`, `Hidden`), the lock id of a locked edge, and the node that a one-way edge opens from |
+| `FNsDungeonLock` | A locked edge and every key id that it needs. A lock with no key never opens |
+| `FNsDungeonKey` | The node that holds the key, and its lock |
+| `FNsDungeonSettings` | The values of one generation. `UNsDungeonRuleSet` holds them in an asset |
+| `FNsDungeonResult` | The seed that worked, the validity, a message, the graph, and the steps |
+
+## The generation
+
+`FNsDungeonGenerator::Generate` runs `TryGenerate` with `FRandomStream(Seed + Try)` until a try passes `Validate`.
+
+1. **Grid.** `Reset` makes every node `Unused`.
+2. **Start and goal.** A random start, and a random goal at the minimum grid distance or more.
+3. **Major cycle.** `FindGridPath` is Dijkstra with a random cost on each node, so the path wanders. Arc 0 goes from the start to the goal. Arc 1 does the same around the inner nodes of arc 0. A direct step from the start to the goal is not allowed, so each arc has a node between them. The arcs become `Path` nodes and `Open` edges.
+4. **Cycle type.** `PickCycleType` picks by weight. `ApplyCycleType` puts a lock on the last edge of arc 0 into the goal, keys on the arcs, and a one-way edge from the goal into arc 1 for the valve types.
+5. **Validation.** A walk from the start over the edges that `CanPass` allows. Each reached key goes into the held set, and the walk runs again until nothing changes. Valid when the goal and every key are reached.
+
+With `bKeepSteps`, each step stores a copy of the graph in `Result.Steps` for the editor preview.
+
+## Extension points
+
+- A new major cycle type: add it to `ENsDungeonCycleType` and a case in `ApplyCycleType`. The validation checks it with no other change.
+- New steps (D2): minor cycles, dead ends, and the resolve step run after the cycle type and before the validation.
+
+## Tests
+
+`Private/Tests/NsDungeonGeneratorTests.cpp`:
+
+| Test | Checks |
+|---|---|
+| `NsDungeons.Generator.CycleTypes` | 200 seeds for each cycle type: valid, the right locks and keys |
+| `NsDungeons.Generator.LockBlocksGoal` | Without its keys, a lock and key dungeon has no way to the goal |
+| `NsDungeons.Generator.SameSeed` | The same seed gives the same graph, and the steps end on the result |
+| `NsDungeons.Generator.Validate` | A hand-made graph: a lock with no key, a key next to the start, a one-way door from the goal side |

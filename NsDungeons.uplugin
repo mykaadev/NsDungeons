@@ -1,0 +1,29 @@
+{
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "0.1",
+    "FriendlyName": "NsDungeons",
+    "Description": "Nulled Softworks - Cyclic lock-and-key dungeon generation on a grid, with an editor preview",
+    "Category": "Other",
+    "CreatedBy": "nulled.softworks",
+    "CreatedByURL": "mykaadev.github.io",
+    "DocsURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": true,
+    "IsExperimentalVersion": false,
+    "Installed": false,
+    "Modules": [
+        {
+            "Name": "NsDungeons",
+            "Type": "Runtime",
+            "LoadingPhase": "Default",
+            "PlatformAllowList": [ "Win64" ]
+        },
+        {
+            "Name": "NsDungeonsEditor",
+            "Type": "Editor",
+            "LoadingPhase": "Default",
+            "PlatformAllowList": [ "Win64" ]
+        }
+    ]
+}
