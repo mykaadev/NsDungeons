@@ -125,7 +125,7 @@ The generation follows the cyclic dungeon method of **Unexplored**, as Boris the
 
 ## 📚 Documentation
 - [User Guide](https://mykaadev.github.io/plugins/nsdungeons/user-guide/) – Setup, common tasks, settings, and debug tools.
-- [Technical Documentation](https://mykaadev.github.io/plugins/nsdungeons/tech-documentation/) – Architecture, lifetime, extension points, and tests.
+- [Technical Documentation](https://mykaadev.github.io/plugins/nsdungeons/tech-documentation/) – Architecture, lifetime, and extension points.
 
 <!-- GH_ONLY_START -->
 ## ❤️ Credits

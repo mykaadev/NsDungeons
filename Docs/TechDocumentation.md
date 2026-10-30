@@ -6,7 +6,7 @@
 
 | Module | Type | Loading phase | Platforms | Content |
 |---|---|---|---|---|
-| `NsDungeons` | Runtime | Default | Win64 | The graph, the rule set, the generator, the validation, the layout, the Blueprint library, the debug component, the demo actor, and the tests |
+| `NsDungeons` | Runtime | Default | Win64 | The graph, the rule set, the generator, the validation, the layout, the Blueprint library, the debug component, the demo actor |
 | `NsDungeonsEditor` | Editor | Default | Win64 | The NsDungeons Preview tab and the `NsDungeons.SavePreview` console command |
 
 The plugin can contain content. `Content/Demo/L_NsDungeonsDemo.umap` is the demo map (`/NsDungeons/Demo/L_NsDungeonsDemo`).
@@ -17,7 +17,6 @@ The plugin can contain content. `Content/Demo/L_NsDungeonsDemo.umap` is the demo
 |---|---|
 | `Source/NsDungeons/Public` | `NsDungeons.h` (module and log category), `NsDungeonGraph.h`, `NsDungeonRuleSet.h`, `NsDungeonGenerator.h`, `NsDungeonLayout.h`, `NsDungeonLibrary.h`, `NsDungeonDebugComponent.h`, `NsDungeonDemoActor.h` |
 | `Source/NsDungeons/Private` | The implementations. `NsDungeonGenerator.cpp` holds the main steps and the validation, `NsDungeonSteps.cpp` the later steps, and `NsDungeonLayoutBuilder.cpp` the layout |
-| `Source/NsDungeons/Private/Tests` | `NsDungeonGeneratorTests.cpp` |
 | `Source/NsDungeonsEditor/Private` | `NsDungeonsEditorModule.cpp`, `SNsDungeonPreview` (the controls), `SNsDungeonView` (paints a graph step or the layout) |
 | `Scripts` | `make_demo_map.py`, which makes the demo map |
 
@@ -106,30 +105,3 @@ The `.uplugin` lists no plugin dependencies.
 ## Networking
 
 The plugin does not replicate. The generator uses only `FRandomStream` values from the seed, so the same settings and the same seed give the same dungeon.
-
-## Testing
-
-`Source/NsDungeons/Private/Tests/NsDungeonGeneratorTests.cpp` holds simple automation tests (`WITH_DEV_AUTOMATION_TESTS`, editor context, engine filter):
-
-| Test | Checks |
-|---|---|
-| `NsDungeons.Generator.CycleTypes` | 200 seeds for each cycle type, with that type alone: valid, the right type, the right count of locks and keys |
-| `NsDungeons.Generator.LockBlocksGoal` | 50 `LockAndKey` seeds: with the keys taken away, the graph is not valid |
-| `NsDungeons.Generator.SameSeed` | The same seed gives the same graph and layout, and the last step matches the result |
-| `NsDungeons.Generator.Validate` | A hand-made graph: a lock with no key, a key next to the start, a one-way door from the goal side |
-| `NsDungeons.Generator.FullFloor` | 200 seeds with every step on: valid, the target size, a side loop, every tag placed, more than 100 floors with a locked side loop |
-| `NsDungeons.Layout.Rooms` | 100 layouts: a room for each node, no rooms that overlap, a door cell for each edge, every room reached over the cells |
-
-Run them in Session Frontend > Automation, or from the command line with `-ExecCmds="Automation RunTests NsDungeons"`.
-
-Checks with no person at the editor:
-
-- `NsDungeons.SavePreview <Seed> <File.png> [Step] [CycleType]` renders the preview off screen with `FWidgetRenderer` and saves a PNG.
-- In a non-shipping build, the demo actor reads `-NsDungeonsDemoStep=N` (shows step N) and `-NsDungeonsDemoShot=Seconds` (saves `Saved/Screenshots/NsDungeonsDemo.png` after that time, then quits).
-- `Scripts/make_demo_map.py` makes or updates the demo map: a demo actor, a sun, a sky light, a sky atmosphere, and `GameModeBase`. Run it with `UnrealEditor-Cmd.exe <Project>.uproject -run=pythonscript -script="<path>/make_demo_map.py" -unattended`. It needs the Python Editor Script Plugin.
-
-## Change Rules
-
-- Keep the order of the random draws in each step. A change gives other dungeons for the same seeds, and games keep seeds to make a floor again.
-- `BuildLayout` uses its own stream so that a change to the graph steps does not change the layout of the same graph. Keep it apart.
-- `FNsDungeonSettings` is saved in rule set assets. A rename of one of its properties loses the saved value.
