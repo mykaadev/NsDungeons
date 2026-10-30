@@ -34,9 +34,9 @@
 <!-- GH_ONLY_END -->
 
 ## 👀 Summary
-NsDungeons makes dungeon floors with a lock-and-key structure, after the cyclic method of Unexplored. It gives an abstract graph on a fixed grid (rooms, doors, locks, keys, and one-way doors), and a cell layout of that graph. An editor window shows each step of a generation.
+NsDungeons makes dungeon floors with a lock-and-key structure, after the cyclic method of Unexplored. It gives an abstract graph on a fixed grid (rooms, doors, locks, keys, one-way doors, and hidden doors) and a cell layout of that graph. An editor tab shows each step of a generation.
 
-NsDungeons does not build game floors, move characters, or find paths. The game builds its floor from the layout.
+NsDungeons does not build game floors, move characters, or find paths. Your game builds its floor from the layout. The demo actor builds a plain greybox floor only to show the plugin.
 
 <div align="center">
  <img src="https://github.com/mykaadev/NsDungeons/blob/main/Docs/Images/Preview.png" alt="NsDungeons Preview" width="750">
@@ -46,7 +46,7 @@ NsDungeons does not build game floors, move characters, or find paths. The game 
 - **Seeded generator**: The same settings and the same seed always give the same dungeon.
 - **Cycles**: A major cycle of two arcs, with four cycle types, and minor side loops.
 - **Locks and keys**: Locks, keys, one-way doors, and hidden shortcuts.
-- **Validation**: Every dungeon is solvable, and every lock matters.
+- **Validation**: Every valid result is solvable, and every lock cuts off some room.
 - **Cell layout**: Rooms, corridors, and doors on a cell grid, ready for a floor builder.
 - **Room tags**: Put game tags such as `Camp` on rooms, by place.
 - **Editor preview**: Step through a generation in the NsDungeons Preview tab.
@@ -54,16 +54,19 @@ NsDungeons does not build game floors, move characters, or find paths. The game 
 - **Blueprint support**: Generate a dungeon and read its cells from Blueprint.
 
 ## ⚙️ Requirements
-Unreal Engine 5.7+
+- Unreal Engine 5.7+
+- Windows (Win64). Both modules have a Win64 platform allow list.
 
 ## 🛠️ Installation
 1. **Clone** or download this repository.
 2. Copy the `NsDungeons` folder into the `Plugins` folder of your project.
 3. Add `"NsDungeons"` to the dependencies of the game module that calls the generator.
 4. Generate the project files and enable the plugin.
-5. Make a rule set asset: Content Browser, Miscellaneous, Data Asset, `NsDungeonRuleSet`.
 
 ## 🚀 Getting Started
+1. In the Content Browser, make a Data Asset of the class `NsDungeonRuleSet`.
+2. Call the generator with the rule set and a seed:
+
 ```cpp
 #include "NsDungeonGenerator.h"
 
@@ -81,7 +84,7 @@ if (Result.bValid)
 
 In Blueprint, `Generate Dungeon` (rule set, seed) returns the result with its graph and its layout. `Get Layout Cell`, `Cell To Local`, and `Local To Cell` read the cells.
 
-To see the plugin work, open the map `/NsDungeons/Demo/L_NsDungeonsDemo` and press Play. Use N and P to change the seed, and 1 to 9 to show the graph of a step.
+To see the plugin work, open the map `/NsDungeons/Demo/L_NsDungeonsDemo` and click Play. Push N or P to change the seed, and R for a random seed. Push 1 to 8 to show the graph of a step, and 0 to hide it.
 
 <div align="center">
  <img src="https://github.com/mykaadev/NsDungeons/blob/main/Docs/Images/Demo.png" alt="NsDungeons Demo" width="750">
@@ -100,6 +103,7 @@ To see the plugin work, open the map `/NsDungeons/Demo/L_NsDungeonsDemo` and pre
 - `FNsDungeonGraph` – A fixed grid of nodes, the edges between grid neighbors, and the lock and key lists.
 - `FNsDungeonEdge` – Two nodes and a kind: `Open`, `Locked`, `OneWay`, or `Hidden`.
 - `FNsDungeonLock` / `FNsDungeonKey` – A locked edge and the keys that it needs, and the node that holds each key.
+- `FNsDungeonLayout` – The cells, the rooms, and the doors of a dungeon.
 - `FNsDungeonSettings` / `UNsDungeonRuleSet` – The values of one generation, and the asset that holds them.
 - `FNsDungeonResult` – The seed that worked, the validity, the graph, the layout, and the steps.
 
@@ -108,11 +112,13 @@ To see the plugin work, open the map `/NsDungeons/Demo/L_NsDungeonsDemo` and pre
 - `FNsDungeonGenerator::Validate` – Check a hand-made graph.
 - `UNsDungeonLibrary` – Blueprint calls: generate, read a cell, cell to local, and local to cell.
 - `UNsDungeonDebugComponent` – The play overlay. Call `SetDungeon`, then set `NsDungeons.ShowDebug 1`.
+- `ANsDungeonDemoActor` – The greybox demo floor.
 
 ## 🚧 Limits
 - Corridors are straight, and rooms are in the middle of their block.
 - One tag for each room.
 - Only grid neighbors connect, so a room has at most 4 doors.
+- The modules build for Win64 only.
 
 ## 🧾 Acknowledgement
 The generation follows the cyclic dungeon method of **Unexplored**, as Boris the Brave describes it (2021).
